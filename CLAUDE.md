@@ -1,5 +1,8 @@
 # Agent Eval - Azure AI Evaluation Framework
 
+## Notes
+This project supports local evaluation using Azure AI SDK
+
 ## Project Overview
 
 An evaluation framework for testing custom agents deployed in **Azure Container Apps** on **RAG quality** and **safety metrics**. It sends test prompts to a custom agent via REST API, scores responses using Azure OpenAI as a judge model, and generates an HTML report with results.
