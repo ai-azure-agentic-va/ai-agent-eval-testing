@@ -111,11 +111,14 @@ def main():
         latency = time.perf_counter() - start
 
         response = agent_out["response"]
-        print("agent response:" + response)
         context = agent_out["context"]
-        print("agent context:" + str(context))
 
-        print(f"  Response: {response[:100]}{'...' if len(response) > 100 else ''}")
+        # Safe printing with encoding fallback for Windows
+        try:
+            print(f"  Response: {response[:100]}{'...' if len(response) > 100 else ''}")
+        except UnicodeEncodeError:
+            print(f"  Response: {response[:100].encode('ascii', errors='replace').decode()}...")
+
         print(f"  Latency: {latency:.2f}s | Context: {'Yes' if context else 'No'}")
 
         # Evaluate
