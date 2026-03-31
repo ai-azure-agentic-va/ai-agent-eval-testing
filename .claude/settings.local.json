@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python test_connection.py)",
+      "Bash(python -m agent_eval.run --suite rag --id rag-001)",
+      "Bash(python debug_response.py)",
+      "Bash(python view_scores.py)",
+      "Bash(python show_last_scores.py)"
+    ]
+  }
+}
