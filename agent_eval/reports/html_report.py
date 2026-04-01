@@ -88,14 +88,21 @@ def generate_report(results, output_path="eval_report.html"):
                     <span class="reason">{html.escape(str(reasoning))}</span>
                 </div>"""
 
+            expected = r.get('expected_behavior', '')
+            context = r.get('context', '')
+
             rows_html += f"""<tr>
                 <td><strong>{html.escape(r.get('name', ''))}</strong><br>
                     <small>{html.escape(r.get('id', ''))}</small></td>
                 <td>
                     <div class="prompt-block"><small class="metric-label">PROMPT:</small><br>
                         <pre>{html.escape(r.get('query', ''))}</pre></div>
-                    <div><small class="metric-label">RESPONSE:</small><br>
+                    <div class="prompt-block"><small class="metric-label">EXPECTED RESPONSE:</small><br>
+                        <pre>{html.escape(expected) if expected else '<em>Not specified</em>'}</pre></div>
+                    <div class="prompt-block"><small class="metric-label">ACTUAL RESPONSE:</small><br>
                         <pre>{html.escape(r.get('response', ''))}</pre></div>
+                    <div><small class="metric-label">CITATIONS:</small><br>
+                        <pre>{html.escape(context) if context else '<em>No sources cited</em>'}</pre></div>
                 </td>
                 <td>{scores_html}</td>
                 <td style="text-align:center"><strong>{r.get('latency', 0):.2f}s</strong></td>
