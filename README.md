@@ -166,6 +166,26 @@ AGENT_API_KEY=                 # Optional: Bearer token for agent authentication
 5. **View results:**
    - Open `eval_report.html` in your browser
 
+## Web Interface
+
+A Streamlit-based web UI is available for easier interaction:
+
+```bash
+# Install web dependencies
+pip install -e ".[web]"
+
+# Launch web interface
+streamlit run web/app.py
+```
+
+The web interface provides:
+- 📤 Excel file upload to create/update test prompts
+- ⚙️ All CLI parameters configurable through forms
+- 🚀 One-click evaluation execution
+- 📊 Interactive results with downloadable reports
+
+See [web/README.md](web/README.md) for detailed documentation.
+
 ## Commands
 
 ```bash

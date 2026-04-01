@@ -42,6 +42,7 @@ htmlcov/
 
 # Reports and temp files
 *.html
+web_eval_report.html
 *.log
 
 # OS
