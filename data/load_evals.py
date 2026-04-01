@@ -95,8 +95,8 @@ def main():
     )
     parser.add_argument(
         '--input',
-        default='VA Test Queries.xlsx',
-        help='Path to input Excel file (default: VA Test Queries.xlsx)'
+        default='data/VA Test Queries.xlsx',
+        help='Path to input Excel file (default: data/VA Test Queries.xlsx)'
     )
     parser.add_argument(
         '--output',

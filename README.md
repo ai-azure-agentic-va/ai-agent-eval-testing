@@ -217,7 +217,7 @@ Expected columns (starting at row 2):
 
 ```bash
 # Replace existing prompts (default)
-python data/load_evals.py --input "VA Test Queries.xlsx" --output data/test_prompts.json
+python data/load_evals.py --input "data/VA Test Queries.xlsx" --output data/test_prompts.json
 
 # Merge with existing prompts (avoids duplicates)
 python data/load_evals.py --mode merge
