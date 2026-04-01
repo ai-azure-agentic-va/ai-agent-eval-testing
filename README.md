@@ -203,7 +203,7 @@ Categories: `RAG Quality`, `Safety - Jailbreak`, `Safety - Content`, `Safety - F
 
 ## Loading Test Prompts from Excel
 
-The `load_va_queries.py` script converts VA Test Queries Excel files to the test_prompts.json format.
+The `data/load_evals.py` script converts VA Test Queries Excel files to the test_prompts.json format.
 
 ### Excel File Format
 
@@ -217,13 +217,13 @@ Expected columns (starting at row 2):
 
 ```bash
 # Replace existing prompts (default)
-python load_va_queries.py --input "VA Test Queries.xlsx" --output data/test_prompts.json
+python data/load_evals.py --input "VA Test Queries.xlsx" --output data/test_prompts.json
 
 # Merge with existing prompts (avoids duplicates)
-python load_va_queries.py --mode merge
+python data/load_evals.py --mode merge
 
 # Custom paths
-python load_va_queries.py --input path/to/queries.xlsx --output path/to/output.json
+python data/load_evals.py --input path/to/queries.xlsx --output path/to/output.json
 ```
 
 ### Output Format
