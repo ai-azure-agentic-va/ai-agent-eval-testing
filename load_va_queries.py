@@ -12,11 +12,12 @@ import pandas as pd
 from pathlib import Path
 
 
-def load_excel_queries(excel_path):
+def load_excel_queries(excel_path, sheet_name='Golden DataSet'):
     """Load test queries from Excel file.
 
     Args:
         excel_path: Path to the Excel file
+        sheet_name: Name of the sheet to read (default: 'Golden DataSet')
 
     Returns:
         list: List of prompt dictionaries in test_prompts.json format
@@ -24,6 +25,7 @@ def load_excel_queries(excel_path):
     # Read Excel file, skipping first row and using row 2 as headers
     df = pd.read_excel(
         excel_path,
+        sheet_name=sheet_name,
         header=1,
         names=['Index', 'Number', 'User_Question', 'Expected_Response', 'Source_Document']
     )
@@ -33,9 +35,23 @@ def load_excel_queries(excel_path):
 
     # Convert to prompt format
     prompts = []
-    for idx, row in df.iterrows():
+    skipped_rows = []
+
+    for row_num, (_, row) in enumerate(df.iterrows(), start=1):
+        # Check if Number column is numeric
+        try:
+            question_num = int(float(row['Number']))
+        except (ValueError, TypeError):
+            # Skip rows with non-numeric Number values (e.g., comments/notes)
+            skipped_rows.append({
+                'row': row_num + 2,  # +2 because we skip the first row and have headers on row 2
+                'number_value': str(row['Number'])[:50],
+                'question': str(row['User_Question'])[:50] if pd.notna(row['User_Question']) else 'N/A'
+            })
+            continue
+
         prompt = {
-            "id": f"va-{int(row['Number']):03d}",
+            "id": f"va-{question_num:03d}",
             "category": "RAG Quality",
             "name": row['User_Question'][:50] + "..." if len(row['User_Question']) > 50 else row['User_Question'],
             "query": row['User_Question'],
@@ -47,6 +63,14 @@ def load_excel_queries(excel_path):
             prompt['source_document'] = row['Source_Document']
 
         prompts.append(prompt)
+
+    # Report skipped rows
+    if skipped_rows:
+        print(f"\nWarning: Skipped {len(skipped_rows)} rows with non-numeric '#' column:")
+        for skip in skipped_rows[:10]:  # Show first 10
+            print(f"  Row {skip['row']}: # = '{skip['number_value']}' | Question = '{skip['question']}'")
+        if len(skipped_rows) > 10:
+            print(f"  ... and {len(skipped_rows) - 10} more")
 
     return prompts
 
@@ -109,6 +133,11 @@ def main():
         default='replace',
         help='replace=overwrite output file, merge=add to existing prompts (default: replace)'
     )
+    parser.add_argument(
+        '--sheet',
+        default='Golden DataSet',
+        help='Sheet name to read from Excel file (default: Golden DataSet)'
+    )
 
     args = parser.parse_args()
 
@@ -117,12 +146,17 @@ def main():
         print(f"Error: Input file not found: {args.input}")
         return 1
 
-    print(f"Loading queries from {args.input}...")
-    prompts = load_excel_queries(args.input)
+    print(f"Loading queries from {args.input} (sheet: {args.sheet})...")
+    prompts = load_excel_queries(args.input, sheet_name=args.sheet)
 
     print(f"\nLoaded {len(prompts)} queries:")
     for prompt in prompts:
-        print(f"  - {prompt['id']}: {prompt['name']}")
+        try:
+            print(f"  - {prompt['id']}: {prompt['name']}")
+        except UnicodeEncodeError:
+            # Handle Windows console encoding issues
+            safe_name = prompt['name'].encode('ascii', errors='replace').decode()
+            print(f"  - {prompt['id']}: {safe_name}")
 
     print(f"\nSaving to {args.output} (mode: {args.mode})...")
     save_prompts(prompts, args.output, mode=args.mode)

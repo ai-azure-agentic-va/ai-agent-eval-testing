@@ -2,8 +2,8 @@
   {
     "id": "va-001",
     "category": "RAG Quality",
-    "name": "What is the incremental column for customer_profil...",
-    "query": "What is the incremental column for customer_profile_src?",
+    "name": "Share the mapping for customer_profile_src?",
+    "query": "Share the mapping for customer_profile_src?",
     "expected_behavior": "profile_updated_ts",
     "source_document": "Customer Enterprise STTM"
   },
@@ -394,8 +394,8 @@
   {
     "id": "va-050",
     "category": "RAG Quality",
-    "name": "Relationship Manager data source.",
-    "query": "Relationship Manager data source.",
+    "name": "Fetch the business definitions or data dictionary ...",
+    "query": "Fetch the business definitions or data dictionary for Relationship Manager data source.",
     "expected_behavior": "Fetch the details from data dictionary tab.",
     "source_document": "RelationshipManager_CUR_to_ASL_STTM.xlsm"
   },

@@ -103,7 +103,11 @@ def main():
         category = p.get("category", "Unknown")
         query = p.get("query", "")
 
-        print(f"\n[{test_id}] {category} | {name}")
+        # Safe printing with encoding fallback for Windows
+        try:
+            print(f"\n[{test_id}] {category} | {name}")
+        except UnicodeEncodeError:
+            print(f"\n[{test_id}] {category} | {name.encode('ascii', errors='replace').decode()}")
 
         # Call agent
         start = time.perf_counter()
