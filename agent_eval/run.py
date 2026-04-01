@@ -102,6 +102,7 @@ def main():
         name = p.get("name", "Unknown")
         category = p.get("category", "Unknown")
         query = p.get("query", "")
+        expected_behavior = p.get("expected_behavior", "")
 
         print(f"\n[{test_id}] {category} | {name}")
 
@@ -134,6 +135,7 @@ def main():
             "name": name,
             "query": query,
             "response": response,
+            "expected_behavior": expected_behavior,
             "context": context,
             "latency": latency,
             "scores": scores,
