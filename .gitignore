@@ -57,3 +57,15 @@ debug_response.py
 test_connection.py
 view_scores.py
 show_last_scores.py
+
+# Claude Code
+.claude/
+.slingshot/
+
+# Excel temporary files
+~$*.xlsx
+~$*.xls
+
+# Data files (environment-specific)
+data/test_prompts.json
+data/VA Test Queries.xlsx
