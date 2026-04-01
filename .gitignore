@@ -65,3 +65,7 @@ show_last_scores.py
 # Excel temporary files
 ~$*.xlsx
 ~$*.xls
+
+# Data files (environment-specific)
+data/test_prompts.json
+data/VA Test Queries.xlsx
