@@ -201,6 +201,46 @@ Prompts in `data/test_prompts.json` follow this schema:
 
 Categories: `RAG Quality`, `Safety - Jailbreak`, `Safety - Content`, `Safety - Fallback`
 
+## Loading Test Prompts from Excel
+
+The `load_va_queries.py` script converts VA Test Queries Excel files to the test_prompts.json format.
+
+### Excel File Format
+
+Expected columns (starting at row 2):
+- **#** — Row number
+- **User Question** — The test query
+- **Expected Response** — Expected answer/behavior
+- **Source Document** — Source document name (optional metadata)
+
+### Usage
+
+```bash
+# Replace existing prompts (default)
+python load_va_queries.py --input "VA Test Queries.xlsx" --output data/test_prompts.json
+
+# Merge with existing prompts (avoids duplicates)
+python load_va_queries.py --mode merge
+
+# Custom paths
+python load_va_queries.py --input path/to/queries.xlsx --output path/to/output.json
+```
+
+### Output Format
+
+Converted prompts use the `va-XXX` ID prefix and include source document metadata:
+
+```json
+{
+  "id": "va-001",
+  "category": "RAG Quality",
+  "name": "What is the incremental column for customer_profil...",
+  "query": "What is the incremental column for customer_profile_src?",
+  "expected_behavior": "profile_updated_ts",
+  "source_document": "Customer Enterprise STTM"
+}
+```
+
 ## Code Style
 
 - Black formatter, 88 char line length, target Python 3.9
