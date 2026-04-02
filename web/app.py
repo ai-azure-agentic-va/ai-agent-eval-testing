@@ -75,6 +75,7 @@ def run_evaluation(prompts, suite, agent, rag_evals, safety_evals):
 
         response = agent_out["response"]
         context = agent_out["context"]
+        raw_chunks = agent_out.get("raw_chunks", [])
 
         # Evaluate
         scores = {}
@@ -92,6 +93,7 @@ def run_evaluation(prompts, suite, agent, rag_evals, safety_evals):
             "response": response,
             "expected_behavior": expected_behavior,
             "context": context,
+            "raw_chunks": raw_chunks,
             "latency": latency,
             "scores": scores,
         })

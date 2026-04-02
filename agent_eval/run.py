@@ -115,6 +115,7 @@ def main():
         print("agent response:" + response)
         context = agent_out["context"]
         print("agent context:" + str(context))
+        raw_chunks = agent_out.get("raw_chunks", [])
 
         print(f"  Response: {response[:100]}{'...' if len(response) > 100 else ''}")
         print(f"  Latency: {latency:.2f}s | Context: {'Yes' if context else 'No'}")
@@ -137,6 +138,7 @@ def main():
             "response": response,
             "expected_behavior": expected_behavior,
             "context": context,
+            "raw_chunks": raw_chunks,
             "latency": latency,
             "scores": scores,
         })

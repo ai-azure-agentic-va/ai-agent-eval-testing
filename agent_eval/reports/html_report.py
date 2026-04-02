@@ -90,6 +90,24 @@ def generate_report(results, output_path="eval_report.html"):
 
             expected = r.get('expected_behavior', '')
             context = r.get('context', '')
+            raw_chunks = r.get('raw_chunks', [])
+
+            # Format raw chunks for display
+            raw_chunks_html = ""
+            if raw_chunks and isinstance(raw_chunks, list):
+                for idx, chunk in enumerate(raw_chunks, 1):
+                    if isinstance(chunk, dict):
+                        chunk_title = chunk.get('title', chunk.get('file_name', 'Unknown'))
+                        chunk_score = chunk.get('score', 'N/A')
+                        reranker_score = chunk.get('reranker_score', 'N/A')
+                        chunk_preview = chunk.get('preview', chunk.get('content', ''))
+
+                        raw_chunks_html += f"\n--- Chunk {idx}: {chunk_title} ---\n"
+                        raw_chunks_html += f"Score: {chunk_score} | Reranker: {reranker_score}\n"
+                        if chunk_preview:
+                            raw_chunks_html += f"{chunk_preview}\n"
+                    else:
+                        raw_chunks_html += f"\n--- Chunk {idx} ---\n{str(chunk)}\n"
 
             rows_html += f"""<tr>
                 <td><strong>{html.escape(r.get('name', ''))}</strong><br>
@@ -101,8 +119,10 @@ def generate_report(results, output_path="eval_report.html"):
                         <pre>{html.escape(expected) if expected else '<em>Not specified</em>'}</pre></div>
                     <div class="prompt-block"><small class="metric-label">ACTUAL RESPONSE:</small><br>
                         <pre>{html.escape(r.get('response', ''))}</pre></div>
-                    <div><small class="metric-label">CITATIONS:</small><br>
+                    <div class="prompt-block"><small class="metric-label">CITATIONS:</small><br>
                         <pre>{html.escape(context) if context else '<em>No sources cited</em>'}</pre></div>
+                    <div><small class="metric-label">RAW CHUNKS:</small><br>
+                        <pre>{html.escape(raw_chunks_html) if raw_chunks_html else '<em>No raw chunks available</em>'}</pre></div>
                 </td>
                 <td>{scores_html}</td>
                 <td style="text-align:center"><strong>{r.get('latency', 0):.2f}s</strong></td>

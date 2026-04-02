@@ -52,6 +52,7 @@ class AgentClient:
             # Extract answer and sources from the API response
             assistant_reply = data.get("answer", "")
             sources = data.get("sources", [])
+            raw_chunks = data.get("raw_chunks", [])
 
             # Format sources as context string with actual content
             if isinstance(sources, list):
@@ -79,9 +80,10 @@ class AgentClient:
             return {
                 "response": assistant_reply if assistant_reply else "",
                 "context": context,
+                "raw_chunks": raw_chunks,
             }
 
         except requests.exceptions.RequestException as e:
-            return {"response": f"Agent API error: {str(e)}", "context": ""}
+            return {"response": f"Agent API error: {str(e)}", "context": "", "raw_chunks": []}
         except Exception as e:
-            return {"response": f"Agent error: {str(e)}", "context": ""}
+            return {"response": f"Agent error: {str(e)}", "context": "", "raw_chunks": []}
