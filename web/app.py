@@ -12,6 +12,7 @@ Provides a user-friendly interface to:
 import streamlit as st
 import os
 import sys
+import json
 import tempfile
 import time
 from pathlib import Path
@@ -113,6 +114,14 @@ def main():
     st.title("🤖 Agent Evaluation Framework")
     st.markdown("Upload test prompts and run RAG quality + safety evaluations")
 
+    # Initialize session state for prompts
+    if 'prompts' not in st.session_state:
+        st.session_state['prompts'] = []
+    if 'results' not in st.session_state:
+        st.session_state['results'] = None
+    if 'report_ready' not in st.session_state:
+        st.session_state['report_ready'] = False
+
     # Sidebar for configuration
     with st.sidebar:
         st.header("⚙️ Configuration")
@@ -178,23 +187,30 @@ def main():
 
                         # Load prompts from Excel
                         with st.spinner("Loading prompts from Excel..."):
-                            prompts = load_excel_queries(tmp_path)
+                            new_prompts = load_excel_queries(tmp_path)
 
-                        st.success(f"✅ Loaded {len(prompts)} prompts from Excel")
+                        st.success(f"✅ Loaded {len(new_prompts)} prompts from Excel")
 
                         # Display prompts preview
                         st.subheader("Preview")
-                        for p in prompts[:5]:
+                        for p in new_prompts[:5]:
                             st.write(f"**{p['id']}**: {p['name']}")
 
-                        if len(prompts) > 5:
-                            st.info(f"... and {len(prompts) - 5} more")
+                        if len(new_prompts) > 5:
+                            st.info(f"... and {len(new_prompts) - 5} more")
 
-                        # Save to test_prompts.json
-                        output_path = "data/test_prompts.json"
-                        save_prompts(prompts, output_path, mode=mode)
-
-                        st.success(f"✅ Saved to {output_path} (mode: {mode})")
+                        # Store in session state based on mode
+                        if mode == "replace":
+                            st.session_state['prompts'] = new_prompts
+                            st.success(f"✅ Replaced all prompts ({len(new_prompts)} total)")
+                        else:  # merge
+                            existing_ids = {p['id'] for p in st.session_state['prompts']}
+                            merged_count = 0
+                            for p in new_prompts:
+                                if p['id'] not in existing_ids:
+                                    st.session_state['prompts'].append(p)
+                                    merged_count += 1
+                            st.success(f"✅ Merged {merged_count} new prompts ({len(st.session_state['prompts'])} total)")
 
                         # Clean up temp file
                         os.unlink(tmp_path)
@@ -204,9 +220,9 @@ def main():
 
         with col2:
             st.subheader("Current Prompts")
-            try:
-                loader = PromptLoader()
-                current_prompts = loader.load("test_prompts.json")
+            current_prompts = st.session_state.get('prompts', [])
+
+            if current_prompts:
                 st.metric("Total Prompts", len(current_prompts))
 
                 # Show categories
@@ -218,9 +234,8 @@ def main():
                 st.write("**By Category:**")
                 for cat, count in categories.items():
                     st.write(f"- {cat}: {count}")
-
-            except Exception as e:
-                st.warning("No prompts loaded yet")
+            else:
+                st.info("No prompts loaded. Upload an Excel file above to get started.")
 
     # Tab 2: Run Evaluation
     with tab2:
@@ -256,10 +271,15 @@ def main():
                 help="Filter prompts by ID prefix"
             )
 
-        # Load and filter prompts
-        try:
+        # Load and filter prompts from session state
+        all_prompts = st.session_state.get('prompts', [])
+
+        if not all_prompts:
+            st.warning("⚠️ No test prompts available. Please upload an Excel file in the 'Upload Prompts' tab first.")
+            filtered_prompts = []
+        else:
+            # Apply filters
             loader = PromptLoader()
-            all_prompts = loader.load("test_prompts.json")
             filtered_prompts = loader.filter(
                 all_prompts,
                 category=filter_category if filter_category else None,
@@ -273,10 +293,6 @@ def main():
                 with st.expander("View selected prompts"):
                     for p in filtered_prompts:
                         st.write(f"**{p['id']}** - {p.get('category', 'N/A')} - {p['name']}")
-
-        except Exception as e:
-            st.error(f"❌ Error loading prompts: {str(e)}")
-            st.stop()
 
         st.divider()
 

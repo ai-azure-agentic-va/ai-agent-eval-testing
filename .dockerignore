@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+tests/
+
+# Reports
+*.html
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code
+.claude/
+.slingshot/
+
+# Data files
+data/test_prompts.json
+data/VA Test Queries.xlsx
+data/test_prompts_sample.json
+
+# Temporary files
+~$*.xlsx
+~$*.xls
+
+# Documentation
+*.md
+!README.md
