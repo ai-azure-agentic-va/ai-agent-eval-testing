@@ -26,6 +26,7 @@ wheels/
 # Environment files
 .env
 .env.local
+.gitignore
 
 # IDE
 .vscode/
@@ -73,3 +74,8 @@ data/test_prompts_sample.json
 data/VA Test Queries.xlsx
 data/*.xlsx
 data/*.xls
+
+# Deployment scripts (environment-specific)
+.dockerignore
+deploy-azure.sh
+push_to_github.sh
