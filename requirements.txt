@@ -1,0 +1,20 @@
+# Core dependencies
+python-dotenv>=1.0.0
+azure-identity>=1.15.0
+azure-ai-evaluation>=1.0.0
+openai>=1.12.0
+pandas>=2.1.4
+jinja2>=3.1.2
+requests>=2.31.0
+openpyxl>=3.1.0
+
+# Web interface dependencies
+streamlit>=1.28.0
+
+# Development dependencies (optional)
+# Uncomment the following lines for development:
+# black>=23.0.0
+# flake8>=6.0.0
+# pytest>=7.0.0
+# pytest-mock>=3.12.0
+# pre-commit>=3.0.0
