@@ -77,10 +77,23 @@ def run_evaluation(prompts, suite, agent, rag_evals, safety_evals):
         context = agent_out["context"]
         raw_chunks = agent_out.get("raw_chunks", [])
 
+        # Build full context from raw_chunks (top 10 chunks agent uses)
+        if raw_chunks and isinstance(raw_chunks, list):
+            context_parts = []
+            for i, chunk in enumerate(raw_chunks, 1):
+                if isinstance(chunk, dict):
+                    title = chunk.get('title', chunk.get('file_name', 'Unknown'))
+                    content = chunk.get('content', chunk.get('preview', ''))
+                    if content:
+                        context_parts.append(f"[Chunk {i}: {title}]\n{content}")
+            full_context = "\n\n---\n\n".join(context_parts) if context_parts else context
+        else:
+            full_context = context
+
         # Evaluate
         scores = {}
         if rag_evals:
-            scores.update(rag_evals.evaluate(query=query, response=response, context=context))
+            scores.update(rag_evals.evaluate(query=query, response=response, context=full_context))
 
         if safety_evals:
             scores.update(safety_evals.evaluate(query=query, response=response))

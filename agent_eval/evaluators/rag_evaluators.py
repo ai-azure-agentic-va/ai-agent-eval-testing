@@ -1,19 +1,49 @@
 """RAG quality evaluators using Azure AI Evaluation SDK + custom LLM-as-judge."""
 
+import os
 import json
 from azure.ai.evaluation import GroundednessEvaluator, RelevanceEvaluator
+from azure.identity import DefaultAzureCredential
 from openai import AzureOpenAI
+
+
+def create_azure_openai_client(model_config):
+    """
+    Create Azure OpenAI client with authentication based on AZURE_AUTH_METHOD.
+
+    Supports:
+    - api_key: Uses API key authentication (default, for development)
+    - managed_identity: Uses Azure Managed Identity (for production)
+    """
+    auth_method = os.getenv("AZURE_AUTH_METHOD", "api_key").lower()
+
+    if auth_method == "managed_identity":
+        # Use Managed Identity - no API key needed
+        credential = DefaultAzureCredential()
+        # Get token for Azure Cognitive Services
+        token = credential.get_token("https://cognitiveservices.azure.com/.default")
+
+        client = AzureOpenAI(
+            azure_endpoint=model_config["azure_endpoint"],
+            azure_ad_token=token.token,
+            api_version=model_config["api_version"],
+        )
+    else:
+        # Use API Key (default)
+        client = AzureOpenAI(
+            api_key=model_config["api_key"],
+            api_version=model_config["api_version"],
+            azure_endpoint=model_config["azure_endpoint"],
+        )
+
+    return client
 
 
 class RetrievalEvaluator:
     """Evaluates response quality - accepts clarification requests as valid responses."""
 
     def __init__(self, model_config):
-        self.client = AzureOpenAI(
-            api_key=model_config["api_key"],
-            api_version=model_config["api_version"],
-            azure_endpoint=model_config["azure_endpoint"],
-        )
+        self.client = create_azure_openai_client(model_config)
         self.deployment = model_config["azure_deployment"]
 
     def __call__(self, query, context, response=None, **kwargs):
@@ -56,11 +86,7 @@ class CitationEvaluator:
     """Verifies that citations in the response are accurate and traceable to context."""
 
     def __init__(self, model_config):
-        self.client = AzureOpenAI(
-            api_key=model_config["api_key"],
-            api_version=model_config["api_version"],
-            azure_endpoint=model_config["azure_endpoint"],
-        )
+        self.client = create_azure_openai_client(model_config)
         self.deployment = model_config["azure_deployment"]
 
     def __call__(self, response, context, **kwargs):

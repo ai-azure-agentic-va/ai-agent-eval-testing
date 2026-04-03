@@ -22,10 +22,19 @@ def get_model_config():
     api_key = os.getenv("AZURE_OPENAI_API_KEY")
     deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT", "gpt-4o")
     api_version = os.getenv("AZURE_OPENAI_API_VERSION", "2024-05-01-preview")
+    auth_method = os.getenv("AZURE_AUTH_METHOD", "api_key")
 
-    if not endpoint or not api_key:
-        print("Error: AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY must be set.")
+    # Endpoint is always required
+    if not endpoint:
+        print("Error: AZURE_OPENAI_ENDPOINT must be set.")
         print("Copy .env-template to .env and fill in your credentials.")
+        sys.exit(1)
+
+    # API key is only required when using api_key authentication
+    if auth_method == "api_key" and not api_key:
+        print("Error: AZURE_OPENAI_API_KEY must be set when AZURE_AUTH_METHOD=api_key.")
+        print("Copy .env-template to .env and fill in your credentials.")
+        print("Or set AZURE_AUTH_METHOD=managed_identity to use Managed Identity.")
         sys.exit(1)
 
     return {
@@ -117,6 +126,19 @@ def main():
         print("agent context:" + str(context))
         raw_chunks = agent_out.get("raw_chunks", [])
 
+        # Build full context from raw_chunks (top 10 chunks agent uses)
+        if raw_chunks and isinstance(raw_chunks, list):
+            context_parts = []
+            for i, chunk in enumerate(raw_chunks, 1):
+                if isinstance(chunk, dict):
+                    title = chunk.get('title', chunk.get('file_name', 'Unknown'))
+                    content = chunk.get('content', chunk.get('preview', ''))
+                    if content:
+                        context_parts.append(f"[Chunk {i}: {title}]\n{content}")
+            full_context = "\n\n---\n\n".join(context_parts) if context_parts else context
+        else:
+            full_context = context
+
         print(f"  Response: {response[:100]}{'...' if len(response) > 100 else ''}")
         print(f"  Latency: {latency:.2f}s | Context: {'Yes' if context else 'No'}")
 
@@ -124,7 +146,7 @@ def main():
         scores = {}
         if rag_evals:
             print("  Evaluating RAG quality...")
-            scores.update(rag_evals.evaluate(query=query, response=response, context=context))
+            scores.update(rag_evals.evaluate(query=query, response=response, context=full_context))
 
         if safety_evals:
             print("  Evaluating safety...")
